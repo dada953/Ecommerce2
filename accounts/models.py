@@ -1,5 +1,5 @@
 from django.db import models
-
+import uuid
 # Create your models here.
 # myapp/models.py
 from django.contrib.auth.models import AbstractUser
@@ -51,8 +51,11 @@ class CustomUser(AbstractUser):
     gender = models.CharField(null=True,choices=GENDER_CHOICES,max_length=6)
     address=models.CharField(max_length=200)
     image=models.ImageField(upload_to="image1")
+    #uuidr = models.CharField(max_length=20,unique=True ,editable=False)
     #confirm_password=models.CharField(max_length=20)
     #otp = models.CharField(max_length=6, null=True, blank=True)  # Add the otp field here
+    # uidfield=models.CharField(max_length=300,default="khskfhskfhfh")
+    uid=models.CharField(max_length=100,default=None)
 
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]

@@ -118,7 +118,11 @@ class GenerateOTPView(APIView):
             return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         emailotp = random.randint(1000,10000)
         uid=uuid.uuid4()
+        user.uidfield=uid
         CustomUserLogs.objects.create(useremail=email,otp=emailotp,uid=uid)
+        us1=CustomUser.objects.get(email=email)
+        us1.uid=uid
+        us1.save()
 
         # user.otp = self.emailotp
         # user.save()
@@ -139,35 +143,39 @@ class GenerateOTPView(APIView):
 class ForgotPasswordView(APIView):
     serilizer=ForgotPasswordSerilizer
     def put(self, request):
-        email = request.data.get('email', '')
+       # email = request.data.get('email', '')
         otp = request.data.get('otp', '')
         new_password1=request.data.get('new_password1')
         new_password2=request.data.get('new_password2')
         uuid = request.data.get('uuid', '')
 
+        #obj = get_user_model().objects.get(id=pk)
         
-        try:
-            user = CustomUser.objects.get(email=email)
-        except CustomUser.DoesNotExist:
-            return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            validate_password(password=new_password1,user=user)
-        except ValidationError as err:
-            raise serializers.ValidationError({'password':err.error_list})
+        # try:
+        #     user = CustomUser.objects.get(email=email)
+        # except CustomUser.DoesNotExist:
+        #     return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        # try:
+        #     validate_password(password=new_password1,user=user)
+        # except ValidationError as err:
+        #     raise serializers.ValidationError({'password':err.error_list})
+        #validate_password(password=new_password1)
         
         # objLoginWithotp=GenerateOTPView
         # emailotp=str(objLoginWithotp.emailotp)
         # email = request.data.get('email', '')
         # print(emailotp,otp,type(emailotp),type(otp))
         userlog = CustomUserLogs.objects.get(uid=uuid)
+        obj=CustomUser.objects.get(uid=uuid)
+        print(obj.first_name)
         #print(otp,userlog.otp,type(otp),type(userlog))
         print(type(userlog.uid),type(uuid))
         # if otp==userlog.otp and timezone.now()<userlog.password_changed_date+datetime.timedelta(minutes=1) and userlog.uid==uuid:
         if otp==userlog.otp  and userlog.uid==uuid:
         
             if new_password1==new_password2:
-                user.set_password(new_password1)
-                user.save()
+                obj.set_password(new_password1)
+                obj.save()
                 
                 #CustomUserLogs.objects.create(useremail=email,otp=emailotp)
                # CustomUserLogs.objects.create(otp=emailotp)
